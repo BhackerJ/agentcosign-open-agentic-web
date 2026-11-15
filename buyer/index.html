@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Buyer Desk</title>
+    <link rel="stylesheet" href="assistant.css">
+    <link rel="stylesheet" href="agentcosign/replay.css">
+    <script type="module" src="site.js"></script>
+    <style>
+      body { margin: 0 auto; max-width: 1100px; padding: 24px 16px; font: 16px/1.5 system-ui, sans-serif; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Buyer Desk</h1>
+      <p>A demo buyer agent. It asks the demo dock store on another origin, after you agree.</p>
+    </header>
+    <main>
+      <section id="assistant" class="assistant" aria-labelledby="assistant-heading">
+        <h2 id="assistant-heading">Ask the Buyer Desk</h2>
+        <p id="assistant-status" role="status">Connecting the assistant…</p>
+        <p id="run-tools" hidden>
+          <button id="demo-task" type="button">Fill in the demo request</button>
+          <button id="save-run" type="button">Save this run</button>
+          <a href="agentcosign/replay.html">See saved runs</a>
+        </p>
+        <div id="agent-app">
+          <div data-ns-slot="header"></div>
+          <div class="assistant-panels">
+            <div data-ns-slot="chat"></div>
+            <div data-ns-slot="agents"></div>
+          </div>
+          <div data-ns-slot="settings"></div>
+        </div>
+      </section>
+      <section id="run-section" aria-labelledby="run-heading" hidden>
+        <h2 id="run-heading">What the agent did</h2>
+        <p>Recorded in your browser as it happens: what the agent asked the store, what the store answered, and whether the agent acted on it correctly. The store is a demo with fictional products, and orders are simulated.</p>
+        <div id="run-view"></div>
+      </section>
+    </main>
+  </body>
+</html>

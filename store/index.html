@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Demo Dock Store</title>
+    <meta name="description" content="A demo store of fictional docking stations that buying agents can search, check and order from.">
+    <link rel="stylesheet" href="store.css">
+    <link rel="stylesheet" href="assistant.css">
+    <script type="module" src="store.js"></script>
+    <script type="module" src="site.js"></script>
+  </head>
+  <body>
+    <header class="masthead">
+      <p class="brand">Demo Dock Store</p>
+      <p class="notice">Demo store. Every product is fictional, and orders are simulated: nothing is charged or shipped.</p>
+    </header>
+
+    <main>
+      <section class="intro">
+        <h1>Docking stations, with the specs a buying agent needs</h1>
+        <p>People can browse this page. Agents on other sites can search the range, check a dock against a laptop and displays, and place a simulated order, after their visitor agrees.</p>
+      </section>
+
+      <section aria-labelledby="range-heading">
+        <h2 id="range-heading">The range</h2>
+        <p id="range-status" role="status">Loading the products…</p>
+        <ul class="products" id="products"></ul>
+      </section>
+
+      <section id="assistant" class="assistant" aria-labelledby="assistant-heading">
+        <h2 id="assistant-heading">Ask the store</h2>
+        <p>Tell the assistant your laptop's port and how many displays you need at 4K 60 Hz. It checks each dock before it recommends one.</p>
+        <p class="assistant-note">Your messages go to the model provider named in the settings below.</p>
+        <p id="assistant-status" role="status">Connecting the assistant…</p>
+        <div id="agent-app">
+          <div data-ns-slot="header"></div>
+          <div class="assistant-panels">
+            <div data-ns-slot="chat"></div>
+            <div data-ns-slot="agents"></div>
+          </div>
+          <div data-ns-slot="settings"></div>
+        </div>
+      </section>
+
+      <section class="agents" aria-labelledby="agents-heading">
+        <h2 id="agents-heading">For agents and their builders</h2>
+        <p>This store publishes its agent network and tools as plain files. Another agent site runs the network in its own visitor's browser and calls the tools here.</p>
+        <dl>
+          <dt>Agent manifest</dt>
+          <dd><a href="agent-manifest.json">agent-manifest.json</a></dd>
+          <dt>Agent network</dt>
+          <dd><a href="dock_store.network.json">dock_store.network.json</a>, called as <code id="network-url"></code></dd>
+          <dt>MCP server</dt>
+          <dd><code id="mcp-url"></code> with the tools <code>search_products</code>, <code>check_compatibility</code>, <code>prepare_order</code> and <code>confirm_demo_order</code></dd>
+        </dl>
+      </section>
+    </main>
+  </body>
+</html>

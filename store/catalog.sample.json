@@ -1,0 +1,15 @@
+{
+  "note": "The demo docks as the Shopify store holds them in the missing-information state: OAW-DOCK-04 has no max_displays_4k60. All products are fictional.",
+  "products": [
+    {"id": "OAW-DOCK-01", "title": "Demo Dock Travel", "price_cents": 3900, "currency": "USD",
+     "specs": {"host_port": "USB-C (DisplayPort Alt Mode)", "video_outputs": 1, "max_displays_4k60": 1, "power_delivery_w": 45}},
+    {"id": "OAW-DOCK-02", "title": "Demo Dock Solo", "price_cents": 5900, "currency": "USD",
+     "specs": {"host_port": "USB-C (DisplayPort Alt Mode)", "video_outputs": 1, "max_displays_4k60": 1, "power_delivery_w": 65}},
+    {"id": "OAW-DOCK-03", "title": "Demo Dock Duo Lite", "price_cents": 8900, "currency": "USD",
+     "specs": {"host_port": "USB-C (DisplayPort Alt Mode)", "video_outputs": 2, "max_displays_4k60": 1, "power_delivery_w": 65}},
+    {"id": "OAW-DOCK-04", "title": "Demo Dock Duo", "price_cents": 12900, "currency": "USD",
+     "specs": {"host_port": "USB-C (DisplayPort Alt Mode)", "video_outputs": 2, "max_displays_4k60": null, "power_delivery_w": 90}},
+    {"id": "OAW-DOCK-05", "title": "Demo Dock Trio Pro", "price_cents": 19900, "currency": "USD",
+     "specs": {"host_port": "Thunderbolt 4", "video_outputs": 3, "max_displays_4k60": 3, "power_delivery_w": 100}}
+  ]
+}

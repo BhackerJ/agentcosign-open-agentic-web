@@ -1,0 +1,8 @@
+AgentCosign entry for the Open Agentic Web Challenge
+Copyright 2026 the AgentCosign authors
+
+This product includes software from the agentic-web project
+(https://github.com/cognizant-ai-labs/agentic-web), licensed under the
+Apache License, Version 2.0: the browser runtime, the network build tools
+and the stylesheet in vendor/agentify-website/, and buyer/assistant.css and
+store/assistant.css, which are copies of its assistant stylesheet.

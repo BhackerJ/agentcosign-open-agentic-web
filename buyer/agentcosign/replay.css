@@ -1,0 +1,112 @@
+.acs-replay, .replay-page {
+  --bg: #f6f5f1;
+  --surface: #ffffff;
+  --ink: #1c1b18;
+  --muted: #6a675f;
+  --line: #dedbd2;
+  --accent: #1f5a4a;
+  --ok: #1f6b45;
+  --ok-bg: #e4f1e8;
+  --bad: #a3321f;
+  --bad-bg: #f8e6e1;
+  --stop: #8a5a00;
+  --stop-bg: #fbefd2;
+  --code-bg: #f1efe9;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  .acs-replay, .replay-page {
+    --bg: #151513;
+    --surface: #1e1e1b;
+    --ink: #ecebe6;
+    --muted: #a3a097;
+    --line: #34332e;
+    --accent: #7fc4ae;
+    --ok: #86d1a4;
+    --ok-bg: #1b3327;
+    --bad: #f0a091;
+    --bad-bg: #3c1f19;
+    --stop: #f0c46a;
+    --stop-bg: #3a2e12;
+    --code-bg: #262622;
+  }
+}
+
+/* The replay page itself. */
+body.replay-page {
+  margin: 0 auto;
+  max-width: 920px;
+  padding: 32px 16px 80px;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.replay-page * { box-sizing: border-box; }
+.replay-page h1, .replay-page .top p { margin: 0; }
+.replay-page h1 { font-size: 30px; line-height: 1.15; letter-spacing: -0.01em; }
+
+/* The run view, on the replay page or inside another page. */
+.acs-replay { color: var(--ink); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+.acs-replay * { box-sizing: border-box; }
+.acs-replay h2, .acs-replay h3, .acs-replay p { margin: 0; }
+.acs-replay h2 { font-size: 19px; margin-bottom: 12px; }
+.acs-replay section { margin-top: 36px; }
+.acs-replay section:first-child { margin-top: 28px; }
+
+.top { display: flex; flex-wrap: wrap; gap: 20px 32px; align-items: flex-end; justify-content: space-between; }
+.top > div { flex: 1 1 380px; }
+.eyebrow { color: var(--accent); font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+.lede { color: var(--muted); margin-top: 8px; max-width: 56ch; }
+
+.picker { display: grid; gap: 10px; font-size: 14px; color: var(--muted); }
+.picker label { display: grid; gap: 4px; }
+.picker select, .picker input { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; max-width: 280px; }
+
+.empty { margin-top: 48px; color: var(--muted); }
+
+.acs-replay .verdict { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px 24px; }
+.acs-replay .verdict h2 { font-size: 22px; line-height: 1.3; margin: 10px 0 16px; }
+.acs-replay .badge { display: inline-block; font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 999px; }
+.acs-replay .badge.ok { background: var(--ok-bg); color: var(--ok); }
+.acs-replay .badge.problem { background: var(--bad-bg); color: var(--bad); }
+.acs-replay .badge.running { background: var(--code-bg); color: var(--muted); }
+
+.acs-replay .facts { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; margin: 0; font-size: 14px; }
+.acs-replay .facts dt { color: var(--muted); }
+.acs-replay .facts dd { margin: 0; overflow-wrap: anywhere; }
+
+.acs-replay .checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.acs-replay .checks li { display: grid; grid-template-columns: 92px 1fr; gap: 12px; align-items: baseline; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.acs-replay .checks .mark { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.acs-replay .checks .pass .mark { color: var(--ok); }
+.acs-replay .checks .fail .mark { color: var(--bad); }
+.acs-replay .checks .na .mark { color: var(--muted); }
+.acs-replay .checks .na { opacity: 0.75; }
+.acs-replay .checks .detail { color: var(--muted); font-size: 14px; }
+.acs-replay .checks a { color: var(--accent); font-size: 14px; white-space: nowrap; }
+
+.acs-replay .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.acs-replay .step { display: grid; grid-template-columns: 36px 1fr; gap: 12px; }
+.acs-replay .step .num { color: var(--muted); font: 13px/1 var(--mono); padding-top: 16px; text-align: right; }
+.acs-replay .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+.acs-replay .card .kind { color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.acs-replay .card .title { font-weight: 600; margin-top: 2px; overflow-wrap: anywhere; }
+.acs-replay .card .text { margin-top: 6px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.acs-replay .card .where { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+.acs-replay .card.visitor { border-left: 4px solid var(--accent); }
+.acs-replay .card.error .title { color: var(--bad); }
+
+.acs-replay .step.stop .card { border-color: var(--stop); background: var(--stop-bg); }
+.acs-replay .step.flag-fail .card { border-color: var(--bad); }
+.acs-replay .note { margin-top: 10px; font-size: 14px; font-weight: 600; }
+.acs-replay .step.stop .note { color: var(--stop); }
+.acs-replay .step.flag-fail .note { color: var(--bad); }
+.acs-replay .step.flag-pass .note { color: var(--ok); }
+
+.acs-replay .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin-top: 10px; }
+.acs-replay .pair h3 { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 4px; }
+.acs-replay pre { margin: 0; padding: 10px 12px; background: var(--code-bg); border-radius: 8px; font: 12.5px/1.5 var(--mono); overflow-x: auto; max-height: 340px; white-space: pre; }
+.acs-replay details { margin-top: 8px; }
+.acs-replay summary { cursor: pointer; color: var(--accent); font-size: 14px; }
+.acs-replay :target .card { outline: 2px solid var(--accent); outline-offset: 2px; }

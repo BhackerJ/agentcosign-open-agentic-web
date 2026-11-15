@@ -1,0 +1,8 @@
+{
+  "runs": [
+    {"file": "claude-missing.json", "label": "Spec missing · Claude Sonnet 5.5 · no order"},
+    {"file": "claude-filled.json", "label": "Spec filled in · Claude Sonnet 5.5 · ordered"},
+    {"file": "demo-missing.json", "label": "Spec missing · DeepSeek V4.1 Flash · no order"},
+    {"file": "demo-filled.json", "label": "Spec filled in · DeepSeek V4.1 Flash · ordered"}
+  ]
+}

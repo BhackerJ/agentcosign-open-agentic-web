@@ -1,0 +1,66 @@
+{
+  "brand": "Demo Dock Store Assistant",
+  "networks": [
+    {
+      "name": "dock_store",
+      "front_man": "dock_store_assistant",
+      "hocon": "./dock_store.network.json",
+      "description": "Find a docking station that fits your laptop and displays, and place a simulated order.",
+      "tags": [
+        "agentified-website"
+      ],
+      "sample_queries": [
+        "Which dock under 150 dollars runs two 4K 60 Hz displays from a USB-C laptop?"
+      ]
+    }
+  ],
+  "llm_router": {
+    "base_url": "https://api.otari.ai/api/v1",
+    "mock": false,
+    "byok_router": "https://api.otari.ai/api/v1"
+  },
+  "allowed_peers": [
+    "{{STORE_ORIGIN}}"
+  ],
+  "peer_policy": {
+    "mode": "closed",
+    "deny_origins": [],
+    "note": "Calls only this store's own MCP server."
+  },
+  "agent_mcp": {
+    "protocol": "nsdeploy-agent-mcp/v1",
+    "network": "dock_store",
+    "front_man": "dock_store_assistant",
+    "available": false,
+    "reason": "This is a static bundle; a public MCP facade requires an application host."
+  },
+  "theme": {
+    "primary": "#2563eb"
+  },
+  "linking": {
+    "protocol": "nsdeploy-link/v1",
+    "exports": [
+      {
+        "network": "dock_store",
+        "front_man": "dock_store_assistant",
+        "aliases": [
+          "dock_store",
+          "dock_store_assistant"
+        ],
+        "url": "dock_store"
+      }
+    ],
+    "imports": [],
+    "link_updates": {
+      "mode": "browser-local"
+    }
+  },
+  "deployment": {
+    "mode": "static",
+    "self_contained_runtime": true,
+    "browser_mock": false,
+    "direct_byok": true,
+    "direct_mcp_requires_cors": true,
+    "public_mcp_facade": false
+  }
+}

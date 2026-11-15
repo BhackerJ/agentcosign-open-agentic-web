@@ -1,0 +1,65 @@
+{
+  "brand": "Buyer Desk Assistant",
+  "networks": [
+    {
+      "name": "buyer_desk",
+      "front_man": "buyer_desk",
+      "hocon": "./buyer_desk.network.json",
+      "description": "Ask the buyer agent to buy a docking station at the demo dock store.",
+      "tags": [
+        "agentified-website"
+      ],
+      "sample_queries": [
+        "Buy a dock for my USB-C laptop that runs two 4K 60 Hz displays, under 150 dollars."
+      ]
+    }
+  ],
+  "llm_router": {
+    "base_url": "https://api.otari.ai/api/v1",
+    "mock": false,
+    "byok_router": "https://api.otari.ai/api/v1"
+  },
+  "allowed_peers": [
+    "{{STORE_ORIGIN}}"
+  ],
+  "peer_policy": {
+    "mode": "closed",
+    "deny_origins": [],
+    "note": "Calls only the partner sites in allowed_peers, after the visitor agrees."
+  },
+  "agent_mcp": {
+    "protocol": "nsdeploy-agent-mcp/v1",
+    "network": "buyer_desk",
+    "front_man": "buyer_desk",
+    "available": false,
+    "reason": "This is a static bundle; a public MCP facade requires an application host."
+  },
+  "theme": {
+    "primary": "#2563eb"
+  },
+  "linking": {
+    "protocol": "nsdeploy-link/v1",
+    "exports": [
+      {
+        "network": "buyer_desk",
+        "front_man": "buyer_desk",
+        "aliases": [
+          "buyer_desk"
+        ],
+        "url": "buyer_desk"
+      }
+    ],
+    "imports": [],
+    "link_updates": {
+      "mode": "browser-local"
+    }
+  },
+  "deployment": {
+    "mode": "static",
+    "self_contained_runtime": true,
+    "browser_mock": false,
+    "direct_byok": true,
+    "direct_mcp_requires_cors": true,
+    "public_mcp_facade": false
+  }
+}

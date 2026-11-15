@@ -1,0 +1,46 @@
+// Builds both sites for one pair of origins: copies the runtime in, fills the store's origin
+// into the network sources and manifests, and runs the vendored network build for each site.
+//
+// Usage:
+//   node tools/build_sites.mjs [--store-origin http://127.0.0.1:8801]
+//
+// The buyer's network names the store's network URL, and each manifest lists the store's
+// origin as an allowed peer, so the sites must be rebuilt when the store's address changes.
+// Everything this writes is generated and ignored by git.
+
+import { execFileSync } from "node:child_process";
+import { cp, readFile, rm, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const VENDOR = path.join(ROOT, "vendor", "agentify-website");
+const SITES = [
+  { folder: "store", network: "dock_store" },
+  { folder: "buyer", network: "buyer_desk" },
+];
+
+const at = process.argv.indexOf("--store-origin");
+const storeOrigin = (at >= 0 ? process.argv[at + 1] : "http://127.0.0.1:8801").replace(/\/$/, "");
+if (new URL(storeOrigin).origin !== storeOrigin) {
+  console.error(`--store-origin must be an origin such as https://store.example, not ${storeOrigin}`);
+  process.exit(1);
+}
+
+async function fill(template, out) {
+  const text = await readFile(template, "utf8");
+  await writeFile(out, text.replaceAll("{{STORE_ORIGIN}}", storeOrigin));
+}
+
+for (const { folder, network } of SITES) {
+  const site = path.join(ROOT, folder);
+  await rm(path.join(site, "runtime"), { recursive: true, force: true });
+  await cp(path.join(VENDOR, "runtime"), path.join(site, "runtime"), { recursive: true });
+  await fill(path.join(site, `${network}.hocon.template`), path.join(site, `${network}.hocon`));
+  await fill(path.join(site, "agent-manifest.template.json"), path.join(site, "agent-manifest.json"));
+  execFileSync(process.execPath, [
+    path.join(VENDOR, "scripts", "build_network.mjs"), path.join(site, `${network}.hocon`),
+    "--manifest", path.join(site, "agent-manifest.json"), "--runtime", path.join(site, "runtime"),
+  ], { stdio: "inherit" });
+}
+console.log(`Built both sites for the store at ${storeOrigin}.`);
