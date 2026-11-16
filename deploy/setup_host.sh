@@ -17,7 +17,8 @@ if [ ! -x /usr/local/bin/caddy ]; then
 fi
 
 id oaw >/dev/null 2>&1 || useradd --system --home-dir /opt/agentcosign-oaw --shell /sbin/nologin oaw
-git config --global --add safe.directory /opt/agentcosign-oaw
+# The checkout belongs to the service user, and first boot has no HOME for a per-user setting.
+git config --system --replace-all safe.directory /opt/agentcosign-oaw
 if [ -d /opt/agentcosign-oaw/.git ]; then
   git -C /opt/agentcosign-oaw pull -q --ff-only
 else
