@@ -35,8 +35,11 @@ watch() {
     --output text)"
   if [ "$id" = None ] || [ -z "$id" ]; then
     # Three regions, the fewest Route 53 allows, keep the polling of the sites light.
-    id="$(aws route53 create-health-check --caller-reference "${name}-$(date +%s)" --health-check-config \
-      "Type=HTTPS_STR_MATCH,FullyQualifiedDomainName=${host},Port=443,ResourcePath=${resource},SearchString=${text},RequestInterval=30,FailureThreshold=3,Regions=us-east-1,us-west-2,eu-west-1" \
+    config="$(HOST="$host" RESOURCE="$resource" TEXT="$text" python3 -c 'import json, os; print(json.dumps({
+      "Type": "HTTPS_STR_MATCH", "FullyQualifiedDomainName": os.environ["HOST"], "Port": 443,
+      "ResourcePath": os.environ["RESOURCE"], "SearchString": os.environ["TEXT"], "RequestInterval": 30,
+      "FailureThreshold": 3, "Regions": ["us-east-1", "us-west-2", "eu-west-1"]}))')"
+    id="$(aws route53 create-health-check --caller-reference "${name}-$(date +%s)" --health-check-config "$config" \
       --query HealthCheck.Id --output text)"
   else
     aws route53 update-health-check --health-check-id "$id" --search-string "$text" >/dev/null
