@@ -1,0 +1,28 @@
+# Checks the two public sites every 15 minutes. A failed run is what alerts: GitHub mails it to
+# whoever last changed this schedule. GitHub may start a scheduled run late, and pauses the
+# schedule after 60 days without a commit to the repository.
+name: Uptime
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+env:
+  # Change both when the sites move to their own host names.
+  STORE: https://d1vv5qznfqmd2x.cloudfront.net
+  BUYER: https://d39mn93jbyi6ee.cloudfront.net
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: The store lists its products, read from Shopify
+        run: curl -fsS --retry 2 --retry-all-errors --max-time 30 "$STORE/products.json" | grep -q OAW-DOCK-01
+      - name: The buyer site's funded model answers
+        run: curl -fsS --retry 2 --retry-all-errors --max-time 60 "$BUYER/health" | grep -q '"ok":true'
+      - name: The store accepts shared runs
+        run: curl -fsS --retry 2 --retry-all-errors --max-time 30 "$STORE/.well-known/agentcosign.json" | grep -q agentcosign-visit-share

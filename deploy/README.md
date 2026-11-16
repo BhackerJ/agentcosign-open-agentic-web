@@ -10,7 +10,11 @@ purpose: the store keeps quotes and orders in its process memory, so it must be 
   Manager Parameter Store, under the path in `PARAMETER_PATH`, then starts the server.
 - `provision_aws.sh`: creates the host on AWS with the AWS CLI: a role that can read those
   parameters, a security group open on ports 80 and 443, the instance and a fixed address.
-- `monitor_aws.sh`: watches both sites from outside with Route 53 health checks and mails
+- `.github/workflows/uptime.yml`, at the repository root: checks both public sites every 15
+  minutes, the store's product list and the buyer site's `/health`, free on a public
+  repository. A failed run mails whoever last changed its schedule. Update its two addresses
+  when the sites move.
+- `monitor_aws.sh`: a paid alternative. It watches both sites with Route 53 health checks and mails
   `ALERT_EMAIL` when one fails: the store's product list, which reads Shopify, and the buyer
   site's `/health`, which is 503 when the site-funded model cannot answer (no key, today's
   total spent, or the provider failing). Run it again after a host name changes.
