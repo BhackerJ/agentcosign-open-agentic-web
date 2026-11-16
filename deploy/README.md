@@ -19,6 +19,7 @@ Each parameter under the path becomes an environment variable: `shopify-domain` 
 | Parameter | Used for |
 | --- | --- |
 | `store-host`, `buyer-host` | The two host names, such as `store.example.com` |
+| `edge` | `cdn` when a CDN such as CloudFront ends HTTPS in front of the host and forwards plain HTTP with the visitor's Host header. Leave it unset for Caddy to get certificates itself |
 | `shopify-domain`, `shopify-client-id`, `shopify-client-secret`, `shopify-api-version` | The store's catalog. Use an app that can only read products. Without the secret, the store serves `store/catalog.sample.json` |
 | `model-relay-key`, `model-relay-upstream`, `model-relay-model`, `model-relay-daily-limit` | The site-funded model. Without the key, visitors bring their own |
 
@@ -27,3 +28,6 @@ After changing a host name, also run `/opt/agentcosign-oaw/deploy/setup_host.sh`
 rebuilds the sites for the store's address and rewrites the Caddy configuration.
 
 Point both host names at the host's address before Caddy can get certificates.
+
+Behind a CDN, the host needs no certificate and no DNS record of its own: forward all headers,
+turn caching off, and let only the CDN reach port 80.

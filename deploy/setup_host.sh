@@ -32,6 +32,9 @@ param() {
 }
 store_host="$(param store-host)"
 buyer_host="$(param buyer-host)"
+# "cdn" when a CDN such as CloudFront ends HTTPS and forwards plain HTTP with the visitor's
+# Host header; anything else, and Caddy gets the certificates itself.
+edge="$(param edge 2>/dev/null || echo caddy)"
 
 cd /opt/agentcosign-oaw
 node tools/build_sites.mjs --store-origin "https://${store_host}"
@@ -39,7 +42,22 @@ chown -R oaw:oaw /opt/agentcosign-oaw
 
 mkdir -p /etc/caddy /var/lib/caddy
 chown oaw:oaw /var/lib/caddy
-cat > /etc/caddy/Caddyfile <<CADDY
+if [ "$edge" = cdn ]; then
+  # Keep the CDN's X-Forwarded-For, which names the visitor, for the model relay's rate limit.
+  cat > /etc/caddy/Caddyfile <<CADDY
+http://${store_host} {
+	reverse_proxy 127.0.0.1:8801 {
+		header_up X-Forwarded-For {http.request.header.X-Forwarded-For}
+	}
+}
+http://${buyer_host} {
+	reverse_proxy 127.0.0.1:8802 {
+		header_up X-Forwarded-For {http.request.header.X-Forwarded-For}
+	}
+}
+CADDY
+else
+  cat > /etc/caddy/Caddyfile <<CADDY
 ${store_host} {
 	reverse_proxy 127.0.0.1:8801
 }
@@ -47,6 +65,7 @@ ${buyer_host} {
 	reverse_proxy 127.0.0.1:8802
 }
 CADDY
+fi
 
 for site in store buyer; do
   cat > "/etc/systemd/system/oaw-${site}.service" <<UNIT
