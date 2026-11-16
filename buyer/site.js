@@ -27,6 +27,20 @@ function storeOrigins(trajectory) {
   return [...new Set(trajectory.events.filter((e) => e.type === "tool_call" && e.origin && e.origin !== location.origin).map((e) => e.origin))];
 }
 
+// What one store is sent: the visitor's and the agent's words, and only the events that
+// involved that store. The runtime's model trace stays in the browser.
+function forStore(trajectory, origin) {
+  const { runtime_trace, ...rest } = trajectory;
+  // A consent names its peer by host alone; other events carry full URLs.
+  const host = new URL(origin).host;
+  const theirs = (value) => { try { return value === host || new URL(value).origin === origin; } catch { return false; } };
+  const calls = new Set(trajectory.events.filter((e) => e.type === "tool_call" && e.origin === origin).map((e) => e.call_id));
+  const events = trajectory.events.filter((e) => ["user_message", "agent_text", "turn_error"].includes(e.type)
+    || (e.type === "consent" && theirs(e.peer_origin)) || (e.type === "capability_discovery" && theirs(e.url))
+    || ((e.type === "tool_call" || e.type === "tool_result") && calls.has(e.call_id)));
+  return { ...rest, events };
+}
+
 // Send the run to one store, if it says where it accepts shared runs, and describe the answer.
 async function shareWith(origin, trajectory) {
   const line = document.createElement("span");
@@ -49,9 +63,11 @@ async function shareWith(origin, trajectory) {
     line.textContent = cosigned
       ? `Shared with ${host}. The store found all ${total} of its tool answers in this run in its own records. `
       : `Shared with ${host}, but the store did not give ${total - matched} of the ${total} tool answers in this run, so it will not count it. `;
-    if (reply.visits_page) {
+    // Link only to a page on the store's own origin: the reply comes from another site.
+    const page = reply.visits_page ? new URL(reply.visits_page, origin) : null;
+    if (page?.origin === origin) {
       const link = document.createElement("a");
-      link.href = new URL(reply.visits_page, origin).href;
+      link.href = page.href;
       link.textContent = "See it on the store's page";
       line.append(link);
     }
@@ -96,7 +112,7 @@ try {
     const status = document.querySelector("#share-status");
     status.textContent = "Sharing…";
     const lines = [];
-    for (const origin of storeOrigins(recorder.export())) lines.push(await shareWith(origin, recorder.export()));
+    for (const origin of storeOrigins(recorder.export())) lines.push(await shareWith(origin, forStore(recorder.export(), origin)));
     status.replaceChildren(...lines);
     shareButton.disabled = recorder.running;
   });

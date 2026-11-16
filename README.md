@@ -128,11 +128,13 @@ checks it against the conversation.
 ## How a shared run reaches the store
 
 1. The store announces where it takes shared runs in `/.well-known/agentcosign.json`.
-2. When the visitor selects **Share this run with the store**, the buyer page posts the run to
-   that address, with a CORS preflight.
-3. The store judges the run again with the same judge, and checks each of its tools' answers
-   in the run against a hash of every answer it served. Answers it never gave, or already
-   used for another shared run, leave the run listed but not counted.
+2. When the visitor selects **Share this run with the store**, the buyer page posts that
+   store's part of the run to that address, with a CORS preflight: the visitor's and the
+   agent's words and the store's own calls and answers, without the model trace.
+3. The store keeps only those parts, judges the run again with the same judge, and checks each
+   of its tools' answers, with the tool and arguments it was given for, against a hash of every
+   answer it served. A run with an answer the store never gave, or one already used for
+   another shared run, is kept but not counted or shown.
 4. The store keeps shared runs in its data folder (`--visits-dir`) and lists them at
    `/agent-visits.json`. `store/visit.html` replays one.
 
@@ -157,9 +159,9 @@ checks it against the conversation.
 - A run is recorded in the visitor's browser and stays there unless they save or share it.
 - The store's page is public, so a shared run, the visitor's messages included, is public too.
   The share button says so.
-- Cosigning checks that the store gave each answer, not that it gave them to this visitor:
-  someone who saw an answer elsewhere could claim it first. Answers that carry a quote or
-  order id are unique to one call.
+- Cosigning checks that the store gave each answer, not that it gave them to this visitor.
+  Anyone can call the store's tools and share a run built from the answers, so counts on the
+  store page can be raised by hand; rate limits bound how fast.
 
 ## License
 

@@ -40,6 +40,18 @@ export async function readBody(request, limit = 1_000_000) {
 }
 
 /**
+ * The visitor's address, for rate limits.
+ *
+ * Behind the CDN, the proxy passes on the CDN's X-Forwarded-For, whose last entry is the
+ * address the CDN saw; earlier entries come from the client and can be anything. Without a
+ * CDN the proxy sets the header to the one address it saw.
+ */
+export function clientAddress(request) {
+  const forwarded = String(request.headers["x-forwarded-for"] || "").split(",").map((part) => part.trim()).filter(Boolean);
+  return forwarded.at(-1) || request.socket.remoteAddress || "";
+}
+
+/**
  * Build the relay from the command line and environment.
  *
  * --relay-upstream, --relay-key-env and --relay-model override MODEL_RELAY_UPSTREAM,
@@ -93,7 +105,7 @@ export function startSite({ root, port, name, publicFiles, relay, routes }) {
         // origin names itself here.
         const origin = request.headers.origin;
         if (origin && new URL(origin).host !== request.headers.host) return send(403);
-        const address = String(request.headers["x-forwarded-for"] || request.socket.remoteAddress || "").split(",")[0].trim();
+        const address = clientAddress(request);
         let body;
         try { body = await readBody(request); } catch { return send(413); }
         const reply = await relay.handle(body, address);

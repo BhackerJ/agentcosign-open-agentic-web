@@ -71,14 +71,12 @@ function showMissingSpecs(gaps) {
 }
 
 function visitItem(visit) {
-  const item = element("li", `visit ${visit.cosign.cosigned ? "" : "unmatched"}`);
+  const item = element("li", "visit");
   const when = new Date(visit.received_at).toLocaleString();
   const from = visit.page_origin ? new URL(visit.page_origin).host : "another site";
   const head = element("div", "visit-head");
   head.append(element("span", "outcome", OUTCOMES[visit.outcome] || visit.outcome), element("span", "meta", `${when} · from ${from}${visit.model ? ` · ${visit.model}` : ""}`));
-  const cosign = visit.cosign.cosigned
-    ? `The store gave all ${visit.cosign.total} tool answers in this run.`
-    : `Not counted: the store gave only ${visit.cosign.matched} of the ${visit.cosign.total} tool answers in this run.`;
+  const cosign = `The store gave all ${visit.cosign.total} tool answers in this run.`;
   const link = element("a", "", "Replay");
   link.href = `visit.html?id=${encodeURIComponent(visit.visit_id)}`;
   item.append(head, element("p", "", visit.summary), element("p", "cosign", cosign), link);
@@ -90,11 +88,12 @@ async function showVisits() {
   try {
     const response = await fetch("agent-visits.json");
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const { visits, missing_specs } = await response.json();
+    const { visits, uncounted, missing_specs } = await response.json();
     showMissingSpecs(missing_specs);
     document.querySelector("#visit-list").replaceChildren(...visits.slice(0, 10).map(visitItem));
-    status.textContent = visits.length ? "" : "No agent run has been shared with the store yet.";
-    status.hidden = Boolean(visits.length);
+    const notCounted = uncounted ? ` ${plural(uncounted, "other shared run")} did not match the store's answers and ${uncounted === 1 ? "is" : "are"} not shown.` : "";
+    status.textContent = (visits.length ? "" : "No agent run has been shared with the store yet.") + notCounted;
+    status.hidden = !status.textContent;
   } catch {
     status.textContent = "The store could not load its shared runs.";
     status.hidden = false;

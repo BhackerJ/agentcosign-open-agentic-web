@@ -20,7 +20,9 @@ with the nsdeploy browser runtime and do not edit it.
 
 The buyer page (`../site.js`) shows the view below the chat and redraws it on each recorder
 event, so a visitor sees the run as it happens without saving a file. Its share button sends
-the trajectory to each store the run called that announces `/.well-known/agentcosign.json`.
+each store the run called, if it announces `/.well-known/agentcosign.json`, that store's part
+of the trajectory: the visitor's and agent's words and that store's events, without
+`runtime_trace`.
 
 The store imports `judge.js` to judge shared runs itself, and its build copies `judge.js`,
 `replay-view.js` and `replay.css` to show them, so these files must not depend on the page.

@@ -43,7 +43,7 @@ chown -R oaw:oaw /opt/agentcosign-oaw
 mkdir -p /etc/caddy /var/lib/caddy
 chown oaw:oaw /var/lib/caddy
 if [ "$edge" = cdn ]; then
-  # Keep the CDN's X-Forwarded-For, which names the visitor, for the model relay's rate limit.
+  # Keep the CDN's X-Forwarded-For: its last entry names the visitor, for the rate limits.
   cat > /etc/caddy/Caddyfile <<CADDY
 http://${store_host} {
 	reverse_proxy 127.0.0.1:8801 {

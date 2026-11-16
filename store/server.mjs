@@ -23,7 +23,7 @@
 
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { option, readBody, relayFromEnvironment, startSite } from "../server/site_server.mjs";
+import { clientAddress, option, readBody, relayFromEnvironment, startSite } from "../server/site_server.mjs";
 import { FileCatalog, ShopifyCatalog } from "./catalog.mjs";
 import { StoreTools, TOOL_DEFINITIONS } from "./tools.mjs";
 import { RejectedVisit, VisitBook } from "./visits.mjs";
@@ -71,8 +71,8 @@ const catalog = catalogFile ? new FileCatalog(catalogFile) : shopifyCatalog();
 const tools = new StoreTools(catalog);
 const book = new VisitBook({ dataDir: option("--visits-dir", ""), toolNames: TOOL_DEFINITIONS.map((tool) => tool.name) });
 
-// A shared run holds every answer the store gave in full; a few dozen calls fit well inside this.
-const SHARED_RUN_LIMIT = 2_000_000;
+// A shared run holds every answer the store gave in full; a demo run is under a fifth of this.
+const SHARED_RUN_LIMIT = 512_000;
 
 async function rpcResult(message) {
   const { id, method, params } = message;
@@ -85,18 +85,17 @@ async function rpcResult(message) {
   }
   if (method === "tools/list") return { jsonrpc: "2.0", id, result: { tools: TOOL_DEFINITIONS } };
   if (method === "tools/call") {
+    let result;
     try {
-      const result = await tools.call(params?.name, params?.arguments);
-      if (!result) return { jsonrpc: "2.0", id, error: { code: -32602, message: `unknown tool: ${params?.name}` } };
-      book.recordServed(result);
-      return { jsonrpc: "2.0", id, result };
+      result = await tools.call(params?.name, params?.arguments);
     } catch (error) {
       // The catalog could not be read. Say so without passing on upstream details.
       console.error("tool failed:", error.message);
-      const result = { isError: true, content: [{ type: "text", text: CATALOG_DOWN }] };
-      book.recordServed(result);
-      return { jsonrpc: "2.0", id, result };
+      result = { isError: true, content: [{ type: "text", text: CATALOG_DOWN }] };
     }
+    if (!result) return { jsonrpc: "2.0", id, error: { code: -32602, message: `unknown tool: ${params?.name}` } };
+    book.recordServed(params?.name, params?.arguments, result);
+    return { jsonrpc: "2.0", id, result };
   }
   return { jsonrpc: "2.0", id, error: { code: -32601, message: `method not found: ${method}` } };
 }
@@ -123,15 +122,25 @@ async function visitRoutes(request, url, send) {
   if (url.pathname === "/agent-visits") {
     if (request.method === "OPTIONS") return send(204, SHARE_CORS), true;
     if (request.method !== "POST") return send(405, { ...SHARE_CORS, Allow: "POST, OPTIONS" }), true;
-    const address = String(request.headers["x-forwarded-for"] || request.socket.remoteAddress || "").split(",")[0].trim();
+    const address = clientAddress(request);
+    // Close the connection on a refused body, so the client is not left sending into it.
+    const tooLarge = { error: "The run is too large to share." };
+    if (Number(request.headers["content-length"]) > SHARED_RUN_LIMIT) return json(send, 413, tooLarge, { ...SHARE_CORS, Connection: "close" }), true;
+    let body;
+    try {
+      body = await readBody(request, SHARED_RUN_LIMIT);
+    } catch {
+      return json(send, 413, tooLarge, { ...SHARE_CORS, Connection: "close" }), true;
+    }
     let trajectory;
     try {
-      trajectory = JSON.parse(await readBody(request, SHARED_RUN_LIMIT));
+      trajectory = JSON.parse(body);
     } catch {
       return json(send, 400, { error: "The run could not be read." }, SHARE_CORS), true;
     }
     try {
-      const visit = book.accept(trajectory, address);
+      // The host the visitor's browser called; behind the CDN it is passed on unchanged.
+      const visit = book.accept(trajectory, address, request.headers.host);
       const { matched, total, cosigned } = visit.cosign;
       return json(send, 201, { visit_id: visit.visit_id, outcome: visit.outcome, cosign: { matched, total, cosigned }, visits_page: "/#agent-visits" }, SHARE_CORS), true;
     } catch (error) {
