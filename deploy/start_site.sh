@@ -16,10 +16,12 @@ done < <(aws ssm get-parameters-by-path --path "$path" --with-decryption --regio
   --query 'Parameters[].[Name,Value]' --output text)
 
 if [ "$site" = store ]; then
+  # systemd sets STATE_DIRECTORY from the unit's StateDirectory; shared runs are kept there.
+  visits=(--visits-dir "${STATE_DIRECTORY:-/var/lib/agentcosign-oaw-store}")
   if [ -n "${SHOPIFY_CLIENT_SECRET:-}" ]; then
-    exec node store/server.mjs --port 8801
+    exec node store/server.mjs --port 8801 "${visits[@]}"
   fi
   echo "No Shopify secret set: serving the sample catalog." >&2
-  exec node store/server.mjs --port 8801 --catalog store/catalog.sample.json
+  exec node store/server.mjs --port 8801 --catalog store/catalog.sample.json "${visits[@]}"
 fi
 exec node buyer/server.mjs --port 8802

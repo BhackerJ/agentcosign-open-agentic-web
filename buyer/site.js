@@ -22,6 +22,45 @@ async function modelOptions() {
   return { byokKey: "site-funded", router: new URL(config.model_relay, location.origin).href, model: config.model };
 }
 
+// Every other origin whose tools this run called.
+function storeOrigins(trajectory) {
+  return [...new Set(trajectory.events.filter((e) => e.type === "tool_call" && e.origin && e.origin !== location.origin).map((e) => e.origin))];
+}
+
+// Send the run to one store, if it says where it accepts shared runs, and describe the answer.
+async function shareWith(origin, trajectory) {
+  const line = document.createElement("span");
+  const host = new URL(origin).host;
+  try {
+    const info = await fetch(new URL("/.well-known/agentcosign.json", origin)).then((r) => (r.ok ? r.json() : null));
+    if (!info?.share_url) {
+      line.textContent = `${host} does not accept shared runs. `;
+      return line;
+    }
+    const response = await fetch(new URL(info.share_url, origin), {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(trajectory),
+    });
+    const reply = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      line.textContent = `${host}: ${reply.error || `HTTP ${response.status}`} `;
+      return line;
+    }
+    const { matched, total, cosigned } = reply.cosign;
+    line.textContent = cosigned
+      ? `Shared with ${host}. The store found all ${total} of its tool answers in this run in its own records. `
+      : `Shared with ${host}, but the store did not give ${total - matched} of the ${total} tool answers in this run, so it will not count it. `;
+    if (reply.visits_page) {
+      const link = document.createElement("a");
+      link.href = new URL(reply.visits_page, origin).href;
+      link.textContent = "See it on the store's page";
+      line.append(link);
+    }
+  } catch {
+    line.textContent = `Could not reach ${host}. `;
+  }
+  return line;
+}
+
 const status = document.querySelector("#assistant-status");
 const siteBase = new URL("./", import.meta.url).href;
 try {
@@ -46,9 +85,20 @@ try {
   // Show the run after the first visitor message, and again after every recorded event.
   const runSection = document.querySelector("#run-section");
   const view = new ReplayView(document.querySelector("#run-view"));
+  const shareButton = document.querySelector("#share-run");
   recorder.addEventListener("event", () => {
     runSection.hidden = false;
     view.show(recorder.export(), { running: recorder.running });
+    shareButton.disabled = recorder.running || !storeOrigins(recorder.export()).length;
+  });
+  shareButton.addEventListener("click", async () => {
+    shareButton.disabled = true;
+    const status = document.querySelector("#share-status");
+    status.textContent = "Sharing…";
+    const lines = [];
+    for (const origin of storeOrigins(recorder.export())) lines.push(await shareWith(origin, recorder.export()));
+    status.replaceChildren(...lines);
+    shareButton.disabled = recorder.running;
   });
 
   document.querySelector("#save-run").addEventListener("click", () => {

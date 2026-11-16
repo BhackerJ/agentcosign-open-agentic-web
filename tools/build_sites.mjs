@@ -1,5 +1,6 @@
 // Builds both sites for one pair of origins: copies the runtime in, fills the store's origin
 // into the network sources and manifests, and runs the vendored network build for each site.
+// The store also gets a copy of the replay view, to show the runs visitors share with it.
 //
 // Usage:
 //   node tools/build_sites.mjs [--store-origin http://127.0.0.1:8801]
@@ -42,5 +43,10 @@ for (const { folder, network } of SITES) {
     path.join(VENDOR, "scripts", "build_network.mjs"), path.join(site, `${network}.hocon`),
     "--manifest", path.join(site, "agent-manifest.json"), "--runtime", path.join(site, "runtime"),
   ], { stdio: "inherit" });
+}
+const replayCopy = path.join(ROOT, "store", "agentcosign");
+await rm(replayCopy, { recursive: true, force: true });
+for (const file of ["judge.js", "replay-view.js", "replay.css"]) {
+  await cp(path.join(ROOT, "buyer", "agentcosign", file), path.join(replayCopy, file), { recursive: true });
 }
 console.log(`Built both sites for the store at ${storeOrigin}.`);

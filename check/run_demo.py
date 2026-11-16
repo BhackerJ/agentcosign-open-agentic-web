@@ -1,13 +1,14 @@
 """Run the demo request on the buyer site with a real model, in headless Chromium, and save the run.
 
 Usage:
-    python check/run_demo.py <name> [--buyer http://localhost:8802/] [--decline]
+    python check/run_demo.py <name> [--buyer http://localhost:8802/] [--decline] [--share] [--screenshot <png>]
 
 Both sites must be running, the buyer site with a funded model relay (see README.md), so the
 page needs no key. The script sends the page's demo request, allows each consent card (or
 declines with --decline), and, when the first turn ends in a quote, confirms it in a second
 turn. It prints the judge's verdict and any request that got a 404, and saves the trajectory
-to buyer/runs/<name>.json.
+to buyer/runs/<name>.json. --share then clicks the page's share button and prints what the store
+answered.
 """
 import argparse
 import json
@@ -51,6 +52,7 @@ def main() -> int:
     parser.add_argument("name")
     parser.add_argument("--buyer", default="http://localhost:8802/")
     parser.add_argument("--decline", action="store_true")
+    parser.add_argument("--share", action="store_true", help="share the finished run with the store")
     parser.add_argument("--screenshot", help="save a full-page screenshot of the finished run here")
     args = parser.parse_args()
     decision = "decline" if args.decline else "allow"
@@ -96,6 +98,10 @@ def main() -> int:
         for check in verdict["checks"]:
             print(f"  {check['result']:<4} {check['label']}: {check['detail']}")
         print(f"REQUESTS THAT GOT 404: {missing or 'none'}")
+        if args.share:
+            page.click("#share-run")
+            page.wait_for_function("document.querySelector('#share-status').textContent && !document.querySelector('#share-status').textContent.startsWith('Sharing')", timeout=30000)
+            print(f"SHARED: {page.inner_text('#share-status')}")
         if args.screenshot:
             page.screenshot(path=args.screenshot, full_page=True)
         browser.close()

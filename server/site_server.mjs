@@ -18,7 +18,7 @@ const TYPES = {
 };
 
 // Sources and server code that live in a site folder and are not part of the site.
-const PRIVATE = /^\/(server|catalog|tools)\.mjs$|\.template(\.json)?$|\.sample\.json$|shopify-fixtures\.json$|\/tests\//;
+const PRIVATE = /^\/(server|catalog|tools|visits)\.mjs$|\.template(\.json)?$|\.sample\.json$|shopify-fixtures\.json$|\/tests\//;
 
 /**
  * Read a command-line option's value.

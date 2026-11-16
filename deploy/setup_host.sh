@@ -78,6 +78,7 @@ Wants=network-online.target
 User=oaw
 Environment=PARAMETER_PATH=${path} AWS_REGION=${region}
 ExecStart=/opt/agentcosign-oaw/deploy/start_site.sh ${site}
+StateDirectory=agentcosign-oaw-${site}
 Restart=always
 RestartSec=5
 

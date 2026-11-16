@@ -5,6 +5,7 @@ __pycache__/
 
 # Written by tools/build_sites.mjs
 /store/runtime/
+/store/agentcosign/
 /buyer/runtime/
 /store/.well-known/
 /buyer/.well-known/

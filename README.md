@@ -4,7 +4,8 @@ An entry for the [Open Agentic Web Challenge](https://cognizant-agenticweb.devpo
 
 When an AI agent shops for someone, the store never sees why the agent walked away. This
 project records a buying agent's visit to a store, tool call by tool call, and shows where it
-stopped and whether it was right to. It has three parts:
+stopped and whether it was right to. The visitor can then share that record with the store,
+which shows the merchant which missing spec stopped buying agents. It has four parts:
 
 - **A demo store** that publishes an agent network and four tools: search the range, check a
   product against the shopper's laptop and displays, quote an order, and place a simulated
@@ -16,6 +17,11 @@ stopped and whether it was right to. It has three parts:
   the chat as it happens. A judge then checks the run against five rules. The judge is plain
   code, not a model: it reads the store's recorded answers, so the same run always gets the
   same verdict.
+- **Sharing with the store.** One button on the buyer page sends the run to the store. The
+  store cosigns it: it checks every answer in the run against the answers it actually served,
+  and each served answer can back only one shared run. Its page then lists the shared runs,
+  with a replay of each, and names the missing specs that stopped agents, counting only runs
+  that match.
 
 The five rules: compatibility was confirmed before a quote; the agent did not buy a product
 whose spec the store is missing; the visitor confirmed before the order; the order matches
@@ -99,7 +105,8 @@ The tests use no network. Two more checks need the sites running:
   on that origin would send.
 - `python check/run_demo.py my-run` (Python with Playwright) sends the demo request on the
   buyer page in headless Chromium with the site-funded model, prints the verdict and saves
-  `buyer/runs/my-run.json`.
+  `buyer/runs/my-run.json`. With `--share` it then shares the run with the store and prints
+  the store's answer.
 
 ## How a call crosses sites
 
@@ -118,10 +125,21 @@ call, and the record shows what it did. The store cannot verify that a person co
 order, so `confirm_demo_order` takes the agent's statement that they did, and the judge
 checks it against the conversation.
 
+## How a shared run reaches the store
+
+1. The store announces where it takes shared runs in `/.well-known/agentcosign.json`.
+2. When the visitor selects **Share this run with the store**, the buyer page posts the run to
+   that address, with a CORS preflight.
+3. The store judges the run again with the same judge, and checks each of its tools' answers
+   in the run against a hash of every answer it served. Answers it never gave, or already
+   used for another shared run, leave the run listed but not counted.
+4. The store keeps shared runs in its data folder (`--visits-dir`) and lists them at
+   `/agent-visits.json`. `store/visit.html` replays one.
+
 ## What is where
 
-- `store/`: the store's page, its network source, `server.mjs`, the tools (`tools.mjs`) and
-  the catalog readers (`catalog.mjs`).
+- `store/`: the store's page, its network source, `server.mjs`, the tools (`tools.mjs`), the
+  catalog readers (`catalog.mjs`) and the book of shared runs (`visits.mjs`).
 - `buyer/`: the buyer's page and network source, and `buyer/agentcosign/`, the recorder, the
   judge and the replay. Its `README.md` documents the run format.
 - `server/`: the HTTP server both sites share and the model relay.
@@ -136,7 +154,12 @@ checks it against the conversation.
 
 - The judge knows this store's tool names. It is not a general judge for any store.
 - Quotes and orders live in the store server's memory and are lost when it restarts.
-- A run is recorded in the visitor's browser and stays there unless they save it.
+- A run is recorded in the visitor's browser and stays there unless they save or share it.
+- The store's page is public, so a shared run, the visitor's messages included, is public too.
+  The share button says so.
+- Cosigning checks that the store gave each answer, not that it gave them to this visitor:
+  someone who saw an answer elsewhere could claim it first. Answers that carry a quote or
+  order id are unique to one call.
 
 ## License
 
