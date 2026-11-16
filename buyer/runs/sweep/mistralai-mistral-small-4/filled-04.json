@@ -1,0 +1,187 @@
+{
+  "format": "agentcosign-tool-trajectory/1",
+  "run_id": "78610663-1a6a-4cee-abc0-6c89db9b6df8",
+  "started_at": "2026-11-16T08:07:14.314Z",
+  "exported_at": "2026-11-16T08:07:25.032Z",
+  "page_origin": "http://localhost:8814",
+  "network": "buyer_desk",
+  "model": {
+    "router_host": "localhost:8814",
+    "model": "mistralai/mistral-small-4"
+  },
+  "task": {
+    "request": "Buy a dock for my USB-C laptop that runs two 4K 60 Hz displays, under 150 dollars. Let me review the order before you place it.",
+    "laptop_port": "USB-C (DisplayPort Alt Mode)",
+    "displays_at_4k60": 2,
+    "budget_cents": 15000
+  },
+  "events": [
+    {
+      "seq": 0,
+      "at": "2026-11-16T08:07:14.424Z",
+      "type": "user_message",
+      "text": "Buy a dock for my USB-C laptop that runs two 4K 60 Hz displays, under 150 dollars. Let me review the order before you place it."
+    },
+    {
+      "seq": 1,
+      "at": "2026-11-16T08:07:24.942Z",
+      "type": "turn_error",
+      "message": "LLM HTTP 502: {\"error\":{\"message\":\"The model provider could not be reached.\"}}"
+    }
+  ],
+  "runtime_trace": [
+    {
+      "phase": "start",
+      "id": "s0",
+      "kind": "compile",
+      "parent": null,
+      "status": "running",
+      "origin": "localhost:8814",
+      "what": "top network",
+      "startedAt": 27.80000001192093,
+      "seq": 0,
+      "t": 27.900000035762787,
+      "wall": 1794816434303
+    },
+    {
+      "phase": "note",
+      "kind": "action_catalog",
+      "count": 0,
+      "issues": [],
+      "seq": 1,
+      "t": 36.30000001192093,
+      "wall": 1794816434311
+    },
+    {
+      "phase": "end",
+      "id": "s0",
+      "kind": "compile",
+      "parent": null,
+      "status": "ok",
+      "origin": "localhost:8814",
+      "what": "top network",
+      "startedAt": 27.80000001192093,
+      "network": "buyer_desk",
+      "frontMan": "buyer_desk",
+      "errors": [],
+      "warnings": [],
+      "peers": [
+        "http://127.0.0.1:8801/dock_store"
+      ],
+      "durationMs": 8.5,
+      "seq": 2,
+      "t": 36.30000001192093,
+      "wall": 1794816434311
+    },
+    {
+      "phase": "start",
+      "id": "s3",
+      "kind": "run",
+      "parent": null,
+      "status": "running",
+      "origin": "localhost:8814",
+      "input": "Buy a dock for my USB-C laptop that runs two 4K 60 Hz displays, under 150 dollars. Let me review the order before you place it.",
+      "streamToken": "turn-stream-1",
+      "startedAt": 155.30000001192093,
+      "seq": 3,
+      "t": 155.30000001192093,
+      "wall": 1794816434431
+    },
+    {
+      "phase": "start",
+      "id": "s4",
+      "kind": "agent",
+      "parent": "s3",
+      "status": "running",
+      "origin": "localhost:8814",
+      "agent": "buyer_desk",
+      "network": "buyer_desk",
+      "displayAs": "llm_agent",
+      "runner": "manual",
+      "invocation": "cruse-1",
+      "isTopFrontMan": true,
+      "startedAt": 160.19999998807907,
+      "seq": 4,
+      "t": 160.19999998807907,
+      "wall": 1794816434435
+    },
+    {
+      "phase": "start",
+      "id": "s5",
+      "kind": "model_call",
+      "parent": "s4",
+      "status": "running",
+      "origin": "localhost:8814",
+      "model": "mistralai/mistral-small-4",
+      "mock": false,
+      "routerHost": "localhost:8814",
+      "endpoint": "http://localhost:8814/llm/v1/chat/completions",
+      "keySource": "local BYOK (not shown)",
+      "toolNames": [
+        "dock_store"
+      ],
+      "startedAt": 161.4000000357628,
+      "seq": 5,
+      "t": 161.4000000357628,
+      "wall": 1794816434437
+    },
+    {
+      "phase": "end",
+      "id": "s5",
+      "kind": "model_call",
+      "parent": "s4",
+      "status": "error",
+      "origin": "localhost:8814",
+      "model": "mistralai/mistral-small-4",
+      "mock": false,
+      "routerHost": "localhost:8814",
+      "endpoint": "http://localhost:8814/llm/v1/chat/completions",
+      "keySource": "local BYOK (not shown)",
+      "toolNames": [
+        "dock_store"
+      ],
+      "startedAt": 161.4000000357628,
+      "error": "LLM HTTP 502: {\"error\":{\"message\":\"The model provider could not be reached.\"}}",
+      "durationMs": 10502.299999952316,
+      "seq": 6,
+      "t": 10663.699999988079,
+      "wall": 1794816444939
+    },
+    {
+      "phase": "end",
+      "id": "s4",
+      "kind": "agent",
+      "parent": "s3",
+      "status": "error",
+      "origin": "localhost:8814",
+      "agent": "buyer_desk",
+      "network": "buyer_desk",
+      "displayAs": "llm_agent",
+      "runner": "manual",
+      "invocation": "cruse-1",
+      "isTopFrontMan": true,
+      "startedAt": 160.19999998807907,
+      "error": "LLM HTTP 502: {\"error\":{\"message\":\"The model provider could not be reached.\"}}",
+      "durationMs": 10505.100000023842,
+      "seq": 7,
+      "t": 10665.400000035763,
+      "wall": 1794816444941
+    },
+    {
+      "phase": "end",
+      "id": "s3",
+      "kind": "run",
+      "parent": null,
+      "status": "error",
+      "origin": "localhost:8814",
+      "input": "Buy a dock for my USB-C laptop that runs two 4K 60 Hz displays, under 150 dollars. Let me review the order before you place it.",
+      "streamToken": "turn-stream-1",
+      "startedAt": 155.30000001192093,
+      "error": "LLM HTTP 502: {\"error\":{\"message\":\"The model provider could not be reached.\"}}",
+      "durationMs": 10511,
+      "seq": 8,
+      "t": 10666.300000011921,
+      "wall": 1794816444942
+    }
+  ]
+}

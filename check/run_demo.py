@@ -6,7 +6,8 @@ Usage:
 Both sites must be running, the buyer site with a funded model relay (see README.md), so the
 page needs no key. The script sends the page's demo request, allows each consent card (or
 declines with --decline), and, when the first turn ends in a quote, confirms it in a second
-turn. It prints the judge's verdict and any request that got a 404, and saves the trajectory
+turn. It prints the judge's verdict, any request that got a 404 and the model provider's id for
+each model call (when the relay passes one on), and saves the trajectory
 to buyer/runs/<name>.json. --share then clicks the page's share button and prints what the store
 answered.
 """
@@ -62,6 +63,10 @@ def main() -> int:
         page = browser.new_page()
         missing: list[str] = []
         page.on("response", lambda response: missing.append(response.url) if response.status == 404 else None)
+        # The relay passes on Otari's id for each model call, by which the run's cost can be looked up.
+        model_calls: list[str] = []
+        page.on("response", lambda response: model_calls.append(response.headers["otari-request-id"])
+                if "otari-request-id" in response.headers else None)
         page.goto(args.buyer)
         page.wait_for_function("window.agentcosignRecorder", timeout=30000)
         if page.evaluate("!window.agentcosignRecorder.engine.byokKey"):
@@ -98,6 +103,7 @@ def main() -> int:
         for check in verdict["checks"]:
             print(f"  {check['result']:<4} {check['label']}: {check['detail']}")
         print(f"REQUESTS THAT GOT 404: {missing or 'none'}")
+        print(f"MODEL CALLS: {' '.join(model_calls) or 'none'}")
         if args.share:
             page.click("#share-run")
             page.wait_for_function("document.querySelector('#share-status').textContent && !document.querySelector('#share-status').textContent.startsWith('Sharing')", timeout=30000)

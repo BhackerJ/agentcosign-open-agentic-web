@@ -1,0 +1,187 @@
+{
+  "format": "agentcosign-tool-trajectory/1",
+  "run_id": "24442da7-e28a-4874-8497-55ac3384c898",
+  "started_at": "2026-11-16T08:05:35.582Z",
+  "exported_at": "2026-11-16T08:05:46.427Z",
+  "page_origin": "http://localhost:8815",
+  "network": "buyer_desk",
+  "model": {
+    "router_host": "localhost:8815",
+    "model": "anthropic/claude-sonnet-5.5"
+  },
+  "task": {
+    "request": "Buy a dock for my USB-C laptop that runs two 4K 60 Hz displays, under 150 dollars. Let me review the order before you place it.",
+    "laptop_port": "USB-C (DisplayPort Alt Mode)",
+    "displays_at_4k60": 2,
+    "budget_cents": 15000
+  },
+  "events": [
+    {
+      "seq": 0,
+      "at": "2026-11-16T08:05:35.719Z",
+      "type": "user_message",
+      "text": "Buy a dock for my USB-C laptop that runs two 4K 60 Hz displays, under 150 dollars. Let me review the order before you place it."
+    },
+    {
+      "seq": 1,
+      "at": "2026-11-16T08:05:46.248Z",
+      "type": "turn_error",
+      "message": "LLM HTTP 502: {\"error\":{\"message\":\"The model provider could not be reached.\"}}"
+    }
+  ],
+  "runtime_trace": [
+    {
+      "phase": "start",
+      "id": "s0",
+      "kind": "compile",
+      "parent": null,
+      "status": "running",
+      "origin": "localhost:8815",
+      "what": "top network",
+      "startedAt": 34.700000047683716,
+      "seq": 0,
+      "t": 34.700000047683716,
+      "wall": 1794816335572
+    },
+    {
+      "phase": "note",
+      "kind": "action_catalog",
+      "count": 0,
+      "issues": [],
+      "seq": 1,
+      "t": 41,
+      "wall": 1794816335578
+    },
+    {
+      "phase": "end",
+      "id": "s0",
+      "kind": "compile",
+      "parent": null,
+      "status": "ok",
+      "origin": "localhost:8815",
+      "what": "top network",
+      "startedAt": 34.700000047683716,
+      "network": "buyer_desk",
+      "frontMan": "buyer_desk",
+      "errors": [],
+      "warnings": [],
+      "peers": [
+        "http://127.0.0.1:8801/dock_store"
+      ],
+      "durationMs": 6.399999976158142,
+      "seq": 2,
+      "t": 41.10000002384186,
+      "wall": 1794816335579
+    },
+    {
+      "phase": "start",
+      "id": "s3",
+      "kind": "run",
+      "parent": null,
+      "status": "running",
+      "origin": "localhost:8815",
+      "input": "Buy a dock for my USB-C laptop that runs two 4K 60 Hz displays, under 150 dollars. Let me review the order before you place it.",
+      "streamToken": "turn-stream-1",
+      "startedAt": 189.20000004768372,
+      "seq": 3,
+      "t": 189.20000004768372,
+      "wall": 1794816335727
+    },
+    {
+      "phase": "start",
+      "id": "s4",
+      "kind": "agent",
+      "parent": "s3",
+      "status": "running",
+      "origin": "localhost:8815",
+      "agent": "buyer_desk",
+      "network": "buyer_desk",
+      "displayAs": "llm_agent",
+      "runner": "manual",
+      "invocation": "cruse-1",
+      "isTopFrontMan": true,
+      "startedAt": 195.80000001192093,
+      "seq": 4,
+      "t": 195.80000001192093,
+      "wall": 1794816335733
+    },
+    {
+      "phase": "start",
+      "id": "s5",
+      "kind": "model_call",
+      "parent": "s4",
+      "status": "running",
+      "origin": "localhost:8815",
+      "model": "anthropic/claude-sonnet-5.5",
+      "mock": false,
+      "routerHost": "localhost:8815",
+      "endpoint": "http://localhost:8815/llm/v1/chat/completions",
+      "keySource": "local BYOK (not shown)",
+      "toolNames": [
+        "dock_store"
+      ],
+      "startedAt": 197.10000002384186,
+      "seq": 5,
+      "t": 197.10000002384186,
+      "wall": 1794816335735
+    },
+    {
+      "phase": "end",
+      "id": "s5",
+      "kind": "model_call",
+      "parent": "s4",
+      "status": "error",
+      "origin": "localhost:8815",
+      "model": "anthropic/claude-sonnet-5.5",
+      "mock": false,
+      "routerHost": "localhost:8815",
+      "endpoint": "http://localhost:8815/llm/v1/chat/completions",
+      "keySource": "local BYOK (not shown)",
+      "toolNames": [
+        "dock_store"
+      ],
+      "startedAt": 197.10000002384186,
+      "error": "LLM HTTP 502: {\"error\":{\"message\":\"The model provider could not be reached.\"}}",
+      "durationMs": 10511.899999976158,
+      "seq": 6,
+      "t": 10709,
+      "wall": 1794816346246
+    },
+    {
+      "phase": "end",
+      "id": "s4",
+      "kind": "agent",
+      "parent": "s3",
+      "status": "error",
+      "origin": "localhost:8815",
+      "agent": "buyer_desk",
+      "network": "buyer_desk",
+      "displayAs": "llm_agent",
+      "runner": "manual",
+      "invocation": "cruse-1",
+      "isTopFrontMan": true,
+      "startedAt": 195.80000001192093,
+      "error": "LLM HTTP 502: {\"error\":{\"message\":\"The model provider could not be reached.\"}}",
+      "durationMs": 10514.199999988079,
+      "seq": 7,
+      "t": 10710,
+      "wall": 1794816346247
+    },
+    {
+      "phase": "end",
+      "id": "s3",
+      "kind": "run",
+      "parent": null,
+      "status": "error",
+      "origin": "localhost:8815",
+      "input": "Buy a dock for my USB-C laptop that runs two 4K 60 Hz displays, under 150 dollars. Let me review the order before you place it.",
+      "streamToken": "turn-stream-1",
+      "startedAt": 189.20000004768372,
+      "error": "LLM HTTP 502: {\"error\":{\"message\":\"The model provider could not be reached.\"}}",
+      "durationMs": 10521.299999952316,
+      "seq": 8,
+      "t": 10710.5,
+      "wall": 1794816346248
+    }
+  ]
+}
