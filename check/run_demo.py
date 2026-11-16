@@ -51,6 +51,7 @@ def main() -> int:
     parser.add_argument("name")
     parser.add_argument("--buyer", default="http://localhost:8802/")
     parser.add_argument("--decline", action="store_true")
+    parser.add_argument("--screenshot", help="save a full-page screenshot of the finished run here")
     args = parser.parse_args()
     decision = "decline" if args.decline else "allow"
 
@@ -95,6 +96,8 @@ def main() -> int:
         for check in verdict["checks"]:
             print(f"  {check['result']:<4} {check['label']}: {check['detail']}")
         print(f"REQUESTS THAT GOT 404: {missing or 'none'}")
+        if args.screenshot:
+            page.screenshot(path=args.screenshot, full_page=True)
         browser.close()
     return 0
 

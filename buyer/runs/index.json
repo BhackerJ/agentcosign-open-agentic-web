@@ -1,5 +1,7 @@
 {
   "runs": [
+    {"file": "public-otari-missing.json", "label": "Spec missing · Qwen3.8 Flash via Otari, live site · no order"},
+    {"file": "public-otari-filled.json", "label": "Spec filled in · Qwen3.8 Flash via Otari, live site · ordered"},
     {"file": "claude-missing.json", "label": "Spec missing · Claude Sonnet 5.5 · no order"},
     {"file": "claude-filled.json", "label": "Spec filled in · Claude Sonnet 5.5 · ordered"},
     {"file": "demo-missing.json", "label": "Spec missing · DeepSeek V4.1 Flash · no order"},
