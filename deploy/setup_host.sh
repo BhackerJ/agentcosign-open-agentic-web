@@ -26,6 +26,11 @@ if [ -d /opt/agentcosign-oaw/.git ]; then
 else
   git clone -q "$repo" /opt/agentcosign-oaw
 fi
+# The pull may have changed this script while bash is still running the old one: finish with
+# the new copy, once.
+if [ -z "${OAW_SETUP_UPDATED:-}" ]; then
+  OAW_SETUP_UPDATED=1 exec bash /opt/agentcosign-oaw/deploy/setup_host.sh
+fi
 
 param() {
   aws ssm get-parameter --name "$path/$1" --region "$region" --query Parameter.Value --output text
