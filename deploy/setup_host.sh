@@ -2,6 +2,8 @@
 # Sets up a fresh Amazon Linux 2023 host to serve both sites. Run as root. Safe to run again:
 # it updates the code, rebuilds the sites for the store's host name and restarts the services.
 set -euo pipefail
+# First boot runs this with no HOME, and git refuses to run without one.
+export HOME="${HOME:-/root}"
 repo="${REPO_URL:-https://github.com/BhackerJ/agentcosign-open-agentic-web.git}"
 path="${PARAMETER_PATH:-/agentcosign-oaw}"
 region="${AWS_REGION:-us-east-1}"
@@ -17,7 +19,7 @@ if [ ! -x /usr/local/bin/caddy ]; then
 fi
 
 id oaw >/dev/null 2>&1 || useradd --system --home-dir /opt/agentcosign-oaw --shell /sbin/nologin oaw
-# The checkout belongs to the service user, and first boot has no HOME for a per-user setting.
+# The checkout belongs to the service user, and root updates it.
 git config --system --replace-all safe.directory /opt/agentcosign-oaw
 if [ -d /opt/agentcosign-oaw/.git ]; then
   git -C /opt/agentcosign-oaw pull -q --ff-only
