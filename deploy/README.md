@@ -1,0 +1,29 @@
+# Hosting both sites on one small Linux host
+
+Both sites are plain Node servers. Run them on one host behind [Caddy](https://caddyserver.com),
+which gets the HTTPS certificates and forwards each host name to its server. One host on
+purpose: the store keeps quotes and orders in its process memory, so it must be one process.
+
+- `setup_host.sh`: run once as root on a fresh Amazon Linux 2023 host. It installs Node and
+  Caddy, clones this repository to `/opt/agentcosign-oaw`, and installs the three services.
+- `start_site.sh`: what each site's service runs. It reads the settings from AWS Systems
+  Manager Parameter Store, under the path in `PARAMETER_PATH`, then starts the server.
+- `provision_aws.sh`: creates the host on AWS with the AWS CLI: a role that can read those
+  parameters, a security group open on ports 80 and 443, the instance and a fixed address.
+
+## Settings
+
+Each parameter under the path becomes an environment variable: `shopify-domain` becomes
+`SHOPIFY_DOMAIN`. Store secrets as `SecureString`.
+
+| Parameter | Used for |
+| --- | --- |
+| `store-host`, `buyer-host` | The two host names, such as `store.example.com` |
+| `shopify-domain`, `shopify-client-id`, `shopify-client-secret`, `shopify-api-version` | The store's catalog. Use an app that can only read products. Without the secret, the store serves `store/catalog.sample.json` |
+| `model-relay-key`, `model-relay-upstream`, `model-relay-model`, `model-relay-daily-limit` | The site-funded model. Without the key, visitors bring their own |
+
+After changing a parameter, restart the services: `systemctl restart oaw-store oaw-buyer`.
+After changing a host name, also run `/opt/agentcosign-oaw/deploy/setup_host.sh` again: it
+rebuilds the sites for the store's address and rewrites the Caddy configuration.
+
+Point both host names at the host's address before Caddy can get certificates.

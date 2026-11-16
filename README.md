@@ -129,6 +129,8 @@ checks it against the conversation.
   [cognizant-ai-labs/agentic-web](https://github.com/cognizant-ai-labs/agentic-web) at commit
   `63a956cf`.
 - `tools/`, `check/`: build, Shopify setup and the checks above.
+- `deploy/`: scripts to host both sites on one small Linux host behind Caddy. See its
+  `README.md`.
 
 ## Limits
 
