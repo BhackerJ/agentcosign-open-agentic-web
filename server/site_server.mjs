@@ -93,6 +93,12 @@ export function startSite({ root, port, name, publicFiles, relay, routes }) {
         return send(200, { "Content-Type": TYPES[".json"] }, JSON.stringify(config));
       }
 
+      // For an uptime monitor: 200 while a visitor can use the site-funded model, else 503.
+      if (url.pathname === "/health" && request.method === "GET") {
+        const health = await relay.health();
+        return send(health.ok ? 200 : 503, { "Content-Type": TYPES[".json"] }, JSON.stringify(health));
+      }
+
       // The runtime's settings panel asks the router which models it has.
       if (url.pathname === "/llm/v1/models" && request.method === "GET") {
         const models = relay.funded ? [{ id: relay.model, object: "model" }] : [];

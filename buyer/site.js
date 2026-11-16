@@ -77,6 +77,12 @@ async function shareWith(origin, trajectory) {
   return line;
 }
 
+// The guide links to the store's page, whose address the build writes; without it the guide stays hidden.
+fetch("demo-links.json").then((response) => response.ok ? response.json() : Promise.reject()).then((links) => {
+  for (const link of document.querySelectorAll("[data-demo-link]")) link.href = `${links[link.dataset.demoLink]}/#agent-visits`;
+  document.querySelector(".guide").hidden = false;
+}).catch(() => {});
+
 const status = document.querySelector("#assistant-status");
 const siteBase = new URL("./", import.meta.url).href;
 try {

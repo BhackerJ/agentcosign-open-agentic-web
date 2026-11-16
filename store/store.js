@@ -103,6 +103,12 @@ async function showVisits() {
 document.querySelector("#network-url").textContent = `${location.origin}/dock_store`;
 document.querySelector("#mcp-url").textContent = `${location.origin}/mcp`;
 
+// The guide links to the buyer site, whose address the build writes; without it the guide stays hidden.
+fetch("demo-links.json").then((response) => response.ok ? response.json() : Promise.reject()).then((links) => {
+  for (const link of document.querySelectorAll("[data-demo-link]")) link.href = `${links[link.dataset.demoLink]}/`;
+  document.querySelector(".guide").hidden = false;
+}).catch(() => {});
+
 const status = document.querySelector("#range-status");
 try {
   const response = await fetch("products.json");

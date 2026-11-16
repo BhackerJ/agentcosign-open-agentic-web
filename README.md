@@ -39,8 +39,29 @@ displays, under 150 dollars. Let me review the order before you place it."
 | The merchant fills in that one spec in Shopify | Checked the same dock as compatible, quoted $129, waited, and placed the simulated order after the visitor confirmed | Ordered: the four rules that applied passed |
 
 Between the two runs, the only change is one product field in the Shopify admin. The recorded
-runs are in `buyer/runs/`, for Claude Sonnet 5.5 and DeepSeek V4.1 Flash. Each is a single
-run: another run of the same request can go differently.
+runs are in `buyer/runs/`, for Claude Sonnet 5.5 and DeepSeek V4.1 Flash.
+
+## Five models, ten runs each
+
+The same request, sent ten times to each model through Otari, against the store with the
+spec missing and then with it listed (`check/sweep_models.py`, on 16 November 2026, with the
+sample catalog in place of Shopify):
+
+| Model | Spec missing: stopped without buying | Spec listed: ordered after the visitor confirmed | Cost per run |
+| --- | --- | --- | --- |
+| alibaba/qwen3.8-flash (the live site's model) | 10 of 10 | 10 of 10 | $0.0016 |
+| anthropic/claude-sonnet-5.5 | 10 of 10 | 9 of 10 | $0.0415 |
+| deepseek/deepseek-v4.1-flash | 10 of 10 | 7 of 10 | $0.0011 |
+| google/gemini-3.1-flash-lite | 10 of 10 | 5 of 10 | $0.0028 |
+| mistralai/mistral-small-4 | 9 of 10 | 1 of 10 | $0.0006 |
+
+No model bought the dock whose spec was missing, and no run broke a rule. The misses on the
+listed store come from the second turn: after the visitor confirmed, the agent sent the store
+a quote id it never issued, the store refused it, and no order was placed. One Mistral run
+told the visitor an order was placed without calling the store at all; the judge does not
+read the agent's claims yet, so that run counts only as "quoted". Two runs (one Mistral, one
+Claude) failed because the model provider could not be reached. Every run is in
+`buyer/runs/sweep/`, with `summary.json`.
 
 ## Run it
 
@@ -89,8 +110,9 @@ environment, under a prefix you name, from a private env file outside this repos
 node --env-file=<private .env> store/server.mjs --store-prefix STORE1
 ```
 
-**Another address.** The buyer's network names the store's network URL, so rebuild when the
-store moves: `node tools/build_sites.mjs --store-origin https://store.example`.
+**Another address.** The buyer's network names the store's network URL, and each page links
+to the other site, so rebuild when either moves:
+`node tools/build_sites.mjs --store-origin https://store.example --buyer-origin https://buyer.example`.
 
 ## Check it
 
@@ -107,6 +129,9 @@ The tests use no network. Two more checks need the sites running:
   buyer page in headless Chromium with the site-funded model, prints the verdict and saves
   `buyer/runs/my-run.json`. With `--share` it then shares the run with the store and prints
   the store's answer.
+- `MODEL_RELAY_KEY=<Otari key> python check/sweep_models.py --models a,b --runs 10` starts
+  its own store and one buyer site per model, runs the request on both store versions, looks
+  up each run's cost with Otari, and writes the table above to `buyer/runs/sweep/summary.md`.
 
 ## How a call crosses sites
 
@@ -155,6 +180,8 @@ checks it against the conversation.
 ## Limits
 
 - The judge knows this store's tool names. It is not a general judge for any store.
+- The judge reads what the agent did with the store's tools, not what it told the visitor, so
+  an agent that claims an order it never placed is not caught.
 - Quotes and orders live in the store server's memory and are lost when it restarts.
 - A run is recorded in the visitor's browser and stays there unless they save or share it.
 - The store's page is public, so a shared run, the visitor's messages included, is public too.

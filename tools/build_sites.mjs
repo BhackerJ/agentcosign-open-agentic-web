@@ -3,7 +3,7 @@
 // The store also gets a copy of the replay view, to show the runs visitors share with it.
 //
 // Usage:
-//   node tools/build_sites.mjs [--store-origin http://127.0.0.1:8801]
+//   node tools/build_sites.mjs [--store-origin http://127.0.0.1:8801] [--buyer-origin http://localhost:8802]
 //
 // The buyer's network names the store's network URL, and each manifest lists the store's
 // origin as an allowed peer, so the sites must be rebuilt when the store's address changes.
@@ -21,12 +21,17 @@ const SITES = [
   { folder: "buyer", network: "buyer_desk" },
 ];
 
-const at = process.argv.indexOf("--store-origin");
-const storeOrigin = (at >= 0 ? process.argv[at + 1] : "http://127.0.0.1:8801").replace(/\/$/, "");
-if (new URL(storeOrigin).origin !== storeOrigin) {
-  console.error(`--store-origin must be an origin such as https://store.example, not ${storeOrigin}`);
-  process.exit(1);
+function originOption(name, fallback) {
+  const at = process.argv.indexOf(name);
+  const origin = (at >= 0 ? process.argv[at + 1] : fallback).replace(/\/$/, "");
+  if (new URL(origin).origin !== origin) {
+    console.error(`${name} must be an origin such as https://store.example, not ${origin}`);
+    process.exit(1);
+  }
+  return origin;
 }
+const storeOrigin = originOption("--store-origin", "http://127.0.0.1:8801");
+const buyerOrigin = originOption("--buyer-origin", "http://localhost:8802");
 
 async function fill(template, out) {
   const text = await readFile(template, "utf8");
@@ -43,10 +48,12 @@ for (const { folder, network } of SITES) {
     path.join(VENDOR, "scripts", "build_network.mjs"), path.join(site, `${network}.hocon`),
     "--manifest", path.join(site, "agent-manifest.json"), "--runtime", path.join(site, "runtime"),
   ], { stdio: "inherit" });
+  // Each page's guide links to the other site.
+  await writeFile(path.join(site, "demo-links.json"), JSON.stringify({ store: storeOrigin, buyer: buyerOrigin }) + "\n");
 }
 const replayCopy = path.join(ROOT, "store", "agentcosign");
 await rm(replayCopy, { recursive: true, force: true });
 for (const file of ["judge.js", "replay-view.js", "replay.css"]) {
   await cp(path.join(ROOT, "buyer", "agentcosign", file), path.join(replayCopy, file), { recursive: true });
 }
-console.log(`Built both sites for the store at ${storeOrigin}.`);
+console.log(`Built both sites for the store at ${storeOrigin} and the buyer at ${buyerOrigin}.`);

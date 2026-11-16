@@ -42,7 +42,7 @@ buyer_host="$(param buyer-host)"
 edge="$(param edge 2>/dev/null || echo caddy)"
 
 cd /opt/agentcosign-oaw
-node tools/build_sites.mjs --store-origin "https://${store_host}"
+node tools/build_sites.mjs --store-origin "https://${store_host}" --buyer-origin "https://${buyer_host}"
 chown -R oaw:oaw /opt/agentcosign-oaw
 
 mkdir -p /etc/caddy /var/lib/caddy

@@ -17,6 +17,8 @@ __pycache__/
 /buyer/buyer_desk.hocon
 /store/dock_store.network.json
 /buyer/buyer_desk.network.json
+/store/demo-links.json
+/buyer/demo-links.json
 
 # Ids of the products created in a private Shopify store by tools/create_dock_fixtures.py
 /store/shopify-fixtures.json
