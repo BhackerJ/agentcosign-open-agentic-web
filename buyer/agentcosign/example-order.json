@@ -1,0 +1,12 @@
+{
+  "order_id": "DEMO-d99566b4-77f9-41d4-874a-cdf7ec366159",
+  "quote_id": "Q-0001",
+  "product_id": "OAW-DOCK-04",
+  "title": "Demo Dock Duo",
+  "quantity": 1,
+  "total_cents": 12900,
+  "currency": "USD",
+  "placed_at": "2026-11-19T01:22:57.596Z",
+  "note": "Simulated order. Nothing was charged or shipped.",
+  "signature": "/EFvKYH+OdjSrrhTR4blNYt29S5VCLl4QYiyxGuAuFlwuzecObvw26b2F2m05PqYh1kDkb4X1x/Wm9KmJ+NjBw=="
+}

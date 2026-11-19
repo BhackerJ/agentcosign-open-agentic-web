@@ -10,7 +10,7 @@ with the nsdeploy browser runtime and do not edit it.
   one, and `running` is true while a visitor message has no answer yet. `export()` returns the
   trajectory document, with the runtime's own trace beside it.
 - `judge.js`: `judge(trajectory)` reads a trajectory and returns the outcome, the step where
-  the run stopped, and five checks. It knows the demo store's tools by name:
+  the run stopped, and five shopping checks plus an evidence check for explicit English order claims. It knows the demo store's tools by name:
   `check_compatibility`, `prepare_order` and `confirm_demo_order`.
 - `replay-view.js`: `new ReplayView(element).show(trajectory, { running })` renders a run into
   any element: the verdict, the checks and every step. While a turn is running it shows the

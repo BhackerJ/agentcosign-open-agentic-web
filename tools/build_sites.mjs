@@ -53,7 +53,7 @@ for (const { folder, network } of SITES) {
 }
 const replayCopy = path.join(ROOT, "store", "agentcosign");
 await rm(replayCopy, { recursive: true, force: true });
-for (const file of ["judge.js", "replay-view.js", "replay.css"]) {
+for (const file of ["receipt.js", "judge.js", "replay-view.js", "replay.css"]) {
   await cp(path.join(ROOT, "buyer", "agentcosign", file), path.join(replayCopy, file), { recursive: true });
 }
 console.log(`Built both sites for the store at ${storeOrigin} and the buyer at ${buyerOrigin}.`);

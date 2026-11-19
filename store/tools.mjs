@@ -4,6 +4,8 @@
 // lacks a spec, and prepare_order still quotes that product: whether to go on is the buying
 // agent's call, and the recorded run shows what it did.
 
+import { randomUUID } from "node:crypto";
+import { receiptSigner } from "../server/receipt-signer.mjs";
 import { SPEC_KEYS } from "./catalog.mjs";
 
 const HOST_PORTS = ["USB-C (DisplayPort Alt Mode)", "Thunderbolt 4"];
@@ -107,9 +109,10 @@ export class StoreTools {
    * :param catalog: An object with listProducts().
    * :param now: Returns the current time, replaced in tests.
    */
-  constructor(catalog, now = () => new Date()) {
+  constructor(catalog, now = () => new Date(), signer = receiptSigner()) {
     this.catalog = catalog;
     this.now = now;
+    this.signer = signer;
     this.quotes = new Map();
     this.orders = new Map();
   }
@@ -165,8 +168,8 @@ export class StoreTools {
     }
     // A quote places one order; confirming it again returns that order.
     if (!this.orders.has(quote.quote_id)) {
-      this.orders.set(quote.quote_id, {
-        order_id: `DEMO-${String(this.orders.size + 1).padStart(4, "0")}`,
+      const order = {
+        order_id: `DEMO-${randomUUID()}`,
         quote_id: quote.quote_id,
         product_id: quote.product_id,
         title: quote.title,
@@ -175,7 +178,8 @@ export class StoreTools {
         currency: quote.currency,
         placed_at: this.now().toISOString(),
         note: "Simulated order. Nothing was charged or shipped.",
-      });
+      };
+      this.orders.set(quote.quote_id, { ...order, signature: this.signer.signOrder(order) });
     }
     return this.orders.get(quote.quote_id);
   }

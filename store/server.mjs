@@ -21,6 +21,8 @@
 // served (visits.mjs) and lists shared runs at /agent-visits.json for its page. --visits-dir
 // keeps both on disk; without it they are lost on restart.
 
+import { realpathSync, mkdirSync } from "node:fs";
+import { receiptSigner } from "../server/receipt-signer.mjs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { clientAddress, option, readBody, relayFromEnvironment, startSite } from "../server/site_server.mjs";
@@ -68,8 +70,17 @@ function shopifyCatalog() {
 }
 
 const catalog = catalogFile ? new FileCatalog(catalogFile) : shopifyCatalog();
-const tools = new StoreTools(catalog);
-const book = new VisitBook({ dataDir: option("--visits-dir", ""), toolNames: TOOL_DEFINITIONS.map((tool) => tool.name) });
+const stateDir = option("--visits-dir", "");
+if (stateDir) {
+  mkdirSync(stateDir, { recursive: true });
+  for (const root of [ROOT, path.resolve(ROOT, "../buyer")]) {
+    const dir = realpathSync(stateDir);
+    if (dir === root || dir.startsWith(root + path.sep)) throw new Error("Use a private directory outside both sites for store state.");
+  }
+}
+const signer = receiptSigner(stateDir);
+const tools = new StoreTools(catalog, undefined, signer);
+const book = new VisitBook({ dataDir: stateDir, toolNames: TOOL_DEFINITIONS.map((tool) => tool.name) });
 
 // A shared run holds every answer the store gave in full; a demo run is under a fifth of this.
 const SHARED_RUN_LIMIT = 512_000;
@@ -115,8 +126,11 @@ const json = (send, status, body, headers = {}) => send(status, { ...headers, "C
 
 async function visitRoutes(request, url, send) {
   // Paths are relative to the store's origin: behind a CDN this server does not see the scheme.
+  if (url.pathname === "/.well-known/agentcosign-receipt-key.json" && request.method === "GET") {
+    return json(send, 200, signer.publicKey, { "Access-Control-Allow-Origin": "*" }), true;
+  }
   if (url.pathname === "/.well-known/agentcosign.json" && request.method === "GET") {
-    return json(send, 200, { protocol: "agentcosign-visit-share/1", accepts: "agentcosign-tool-trajectory/1", share_url: "/agent-visits", visits_page: "/#agent-visits" },
+    return json(send, 200, { protocol: "agentcosign-visit-share/1", accepts: "agentcosign-tool-trajectory/1", receipt_key: "/.well-known/agentcosign-receipt-key.json", share_url: "/agent-visits", visits_page: "/#agent-visits" },
       { "Access-Control-Allow-Origin": "*" }), true;
   }
   if (url.pathname === "/agent-visits") {

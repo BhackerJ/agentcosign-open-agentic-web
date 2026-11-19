@@ -2,6 +2,7 @@
 // step with the exact arguments the agent sent and the full answer it got. The replay page
 // and the buyer page's live view both use it. All run content is set as text, never as HTML,
 // because a run holds text from other sites.
+import { verifyReceipt } from "./receipt.js";
 import { judge } from "./judge.js";
 
 export const FORMAT = "agentcosign-tool-trajectory/1";
@@ -78,6 +79,24 @@ function card(event, result, running) {
     const pair = element("div", "pair");
     pair.append(block("Sent", JSON.stringify(event.arguments, null, 2)), block("Received", received));
     box.append(pair);
+    if (event.tool === "confirm_demo_order" && result && !result.is_error) {
+      let order;
+      try { order = JSON.parse(result.text); } catch { return box; }
+      if (order?.signature) {
+        const verify = element("button", "", "Verify store signature");
+        const status = element("p", "text");
+        status.setAttribute("role", "status");
+        verify.onclick = async () => {
+          try {
+            const { store } = await (await fetch("/demo-links.json")).json();
+            const key = await (await fetch(new URL("/.well-known/agentcosign-receipt-key.json", store))).json();
+            status.textContent = await verifyReceipt(order, key) === "verified"
+              ? `Store signature verified for ${order.order_id}.` : "Invalid signature for the connected store.";
+          } catch { status.textContent = "The store verification key could not be loaded."; }
+        };
+        box.append(verify, status);
+      } else if (order?.order_id) box.append(element("p", "where", "Recorded order reply · no signature in this archive."));
+    }
   }
   return box;
 }

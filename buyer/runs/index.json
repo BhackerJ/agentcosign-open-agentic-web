@@ -1,10 +1,36 @@
 {
   "runs": [
-    {"file": "public-otari-missing.json", "label": "Spec missing · Qwen3.8 Flash via Otari, live site · no order"},
-    {"file": "public-otari-filled.json", "label": "Spec filled in · Qwen3.8 Flash via Otari, live site · ordered"},
-    {"file": "claude-missing.json", "label": "Spec missing · Claude Sonnet 5.5 · no order"},
-    {"file": "claude-filled.json", "label": "Spec filled in · Claude Sonnet 5.5 · ordered"},
-    {"file": "demo-missing.json", "label": "Spec missing · DeepSeek V4.1 Flash · no order"},
-    {"file": "demo-filled.json", "label": "Spec filled in · DeepSeek V4.1 Flash · ordered"}
+    {
+      "file": "public-otari-missing.json",
+      "label": "Spec missing \u00b7 Qwen3.8 Flash via Otari, live site \u00b7 no order"
+    },
+    {
+      "file": "public-otari-filled.json",
+      "label": "Spec filled in \u00b7 Qwen3.8 Flash via Otari, live site \u00b7 ordered"
+    },
+    {
+      "file": "claude-missing.json",
+      "label": "Spec missing \u00b7 Claude Sonnet 5.5 \u00b7 no order"
+    },
+    {
+      "file": "claude-filled.json",
+      "label": "Spec filled in \u00b7 Claude Sonnet 5.5 \u00b7 ordered"
+    },
+    {
+      "file": "demo-missing.json",
+      "label": "Spec missing \u00b7 DeepSeek V4.1 Flash \u00b7 no order"
+    },
+    {
+      "file": "demo-filled.json",
+      "label": "Spec filled in \u00b7 DeepSeek V4.1 Flash \u00b7 ordered"
+    },
+    {
+      "file": "sweep/mistralai-mistral-small-4/filled-05.json",
+      "label": "Claimed order without a receipt \u00b7 Mistral"
+    },
+    {
+      "file": "sweep/mistralai-mistral-small-4/filled-06.json",
+      "label": "Store recorded the order \u00b7 Mistral"
+    }
   ]
 }

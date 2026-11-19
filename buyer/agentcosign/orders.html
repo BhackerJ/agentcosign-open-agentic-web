@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Order evidence · AgentCosign</title><link rel="stylesheet" href="orders.css"><script type="module" src="orders.js"></script></head>
+<body><main><nav><a href="../">Buyer Desk</a> / AgentCosign</nav>
+<h1>Did the store actually place the order?</h1>
+<p>Two recorded visits. The same buyer model, the same $129 dock, and the same instruction to wait for approval.</p>
+<section class="pair" aria-label="Compare recorded orders" id="cases"></section>
+<section class="verify"><h2>Check a store signature</h2>
+<p>New simulated orders include a signature. Try a separate signed example issued by the demo store, or open a receipt from the connected store.</p>
+<div class="controls"><button data-case="original">Original receipt</button><button data-case="changed">Change $129 to $130</button><button data-case="missing">Agent message only</button></div>
+<label>Open your store receipt <input id="file" type="file" accept=".json,application/json"></label>
+<p role="status" id="result"></p><details><summary>Inspect verification input</summary><pre id="input"></pre></details></section>
+</main></body></html>

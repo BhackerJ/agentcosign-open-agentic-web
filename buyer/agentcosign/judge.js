@@ -26,6 +26,21 @@ export function toolCalls(trajectory) {
   });
 }
 
+// Explicit English completion statements in the demo. Ignore questions and conditional
+// language; a shopper confirming a quote says nothing about whether the store placed it.
+export function orderClaim(text) {
+  const plain = String(text).replace(/[*`]/g, "");
+  for (const sentence of plain.split(/(?<=[.!?])\s+|\n+/)) {
+    if (/confirmed (?:by (?:the )?(?:visitor|buyer|shopper|user)|for review)/i.test(sentence) || sentence.includes("?") || /\b(if|once|unless|when)\b/i.test(sentence)) continue;
+    const completion = /^(?:done\s*[—,:!-]\s*)?(?:(?:your |the )?order(?:\s+#[\w-]+| for your [\w -]+?)?(?: (?:has been|was|is))? (?:successfully )?(?:placed|confirmed)\b|I (?:have )?placed (?:your|the) order\b)/i;
+    if (completion.test(sentence.trim())) {
+      const id = plain.match(/\border\s+#([\w-]+)|\border id\s*[:|]\s*#?([\w-]+)/i);
+      return { text: sentence.trim(), id: id?.[1] || id?.[2] || null };
+    }
+  }
+  return null;
+}
+
 /**
  * Judge one run.
  *
@@ -125,6 +140,17 @@ export function judge(trajectory) {
     summary = "The agent did not check, quote or order anything.";
   }
 
+  for (const event of trajectory.events.filter(e => e.type === "agent_text")) {
+    const claim = orderClaim(event.text);
+    if (!claim) continue;
+    const matched = orders.find(o => o.data.order_id && o.resultSeq < event.seq &&
+      (!claim.id || o.data.order_id === claim.id));
+    const detail = matched
+      ? `The recorded store reply includes order ${matched.data.order_id}.`
+      : `The agent reported an order${claim.id ? " #" + claim.id : ""}, but the preceding store replies contain no matching receipt.`;
+    add("order_claim", "Order claim matches a recorded store reply", matched ? "pass" : "fail", detail, event.seq);
+    if (!matched) summary = detail;
+  }
   const failed = checks.filter((c) => c.result === "fail");
   return { outcome, summary, stop, checks, verdict: failed.length ? "problem" : "ok" };
 }

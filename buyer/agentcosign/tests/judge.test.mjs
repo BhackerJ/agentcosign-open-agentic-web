@@ -109,3 +109,13 @@ test("only incompatible products ends as nothing compatible", () => {
   assert.equal(verdict.outcome, "stopped_nothing_compatible");
   assert.equal(verdict.stop.seq, 4);
 });
+
+test("order claims require an earlier matching receipt, independent of visitor consent", () => {
+  const r = new Run().quote("Duo",12900).user("Yes, place it");
+  r.add("agent_text",{text:"I have your confirmation. Shall I place the order?"});
+  assert.deepEqual(resultOf(judge(r.trajectory),"order_claim"),[]);
+  r.add("agent_text",{text:"Your order #D17294 has been placed."}).order("Duo",12900);
+  r.add("agent_text",{text:"Order placed. Order ID: D17294"});
+  r.add("agent_text",{text:"Order placed. Order ID: DEMO-0001"});
+  assert.deepEqual(resultOf(judge(r.trajectory),"order_claim"),["fail","fail","pass"]);
+});

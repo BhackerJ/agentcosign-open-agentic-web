@@ -14,7 +14,7 @@ which shows the merchant which missing spec stopped buying agents. It has four p
   tools in the visitor's browser, after the visitor agrees.
 - **A recorder and replay** that any site on the reference runtime can add without changing
   the runtime. It keeps every call's full arguments and full answer, and shows the run below
-  the chat as it happens. A judge then checks the run against five rules. The judge is plain
+  the chat as it happens. A judge then checks the run against the shopping rules. The judge is plain
   code, not a model: it reads the store's recorded answers, so the same run always gets the
   same verdict.
 - **Sharing with the store.** One button on the buyer page sends the run to the store. The
@@ -23,10 +23,30 @@ which shows the merchant which missing spec stopped buying agents. It has four p
   with a replay of each, and names the missing specs that stopped agents, counting only runs
   that match.
 
-The five rules: compatibility was confirmed before a quote; the agent did not buy a product
+The shopping rules: compatibility was confirmed before a quote; the agent did not buy a product
 whose spec the store is missing; the visitor confirmed before the order; the order matches
 the quote; the total is within the visitor's budget. A rule that a run never reaches, such as
 "order matches the quote" when nothing was ordered, is marked as not needed.
+
+## Did the store actually place the order?
+
+Open `/agentcosign/orders.html` on the buyer site. Two November 16 runs of the same model
+show a claimed order with only a quote and a completed order with its original store reply.
+These archives predate signatures. The verifier on that page also includes a separate example
+from a signing demo store and accepts new receipts against the connected store’s public key.
+
+Every new successful `confirm_demo_order` result carries an Ed25519 signature. Independently obtain the
+public JWK from the trusted store origin at `/.well-known/agentcosign-receipt-key.json`, then run
+`node check/verify_receipt.mjs order.json public-key.json`. Exit status 0 means the signature
+covers the exact order details. This verifies issuance of a simulated order. Visitor consent and
+fulfillment are separate questions. Repeated confirmation of a quote returns the original receipt.
+With `--visits-dir`, keep the private state directory outside both sites and back it up to preserve
+the signing key. Without persistent state the store uses a key for that process only.
+
+Run `node check/audit_order_claims.mjs --rows` for labels and store evidence per trace.
+On the 100 archived sample-catalog runs, 33 reported a placed order. 32 matched a recorded
+receipt and one lacked one. The bounded English detector missed none of the labeled claims
+and flagged no other run on this development set. These are retrospective results.
 
 ## The demo
 
@@ -55,11 +75,10 @@ sample catalog in place of Shopify):
 | google/gemini-3.1-flash-lite | 10 of 10 | 5 of 10 | $0.0028 |
 | mistralai/mistral-small-4 | 9 of 10 | 1 of 10 | $0.0006 |
 
-No model bought the dock whose spec was missing, and no run broke a rule. The misses on the
+No model bought the dock whose spec was missing. The table records the original five tool-level checks. The misses on the
 listed store come from the second turn: after the visitor confirmed, the agent sent the store
 a quote id it never issued, the store refused it, and no order was placed. One Mistral run
-told the visitor an order was placed without calling the store at all; the judge does not
-read the agent's claims yet, so that run counts only as "quoted". Two runs (one Mistral, one
+told the visitor an order was placed without calling the store at all; the original judge missed the unsupported claim. The current replay flags it. Two runs (one Mistral, one
 Claude) failed because the model provider could not be reached. Every run is in
 `buyer/runs/sweep/`, with `summary.json`.
 
@@ -180,8 +199,7 @@ checks it against the conversation.
 ## Limits
 
 - The judge knows this store's tool names. It is not a general judge for any store.
-- The judge reads what the agent did with the store's tools, not what it told the visitor, so
-  an agent that claims an order it never placed is not caught.
+- Claim detection covers explicit English order-completion statements. Implicit promises, delivery dates and other languages need separate evaluation.
 - Quotes and orders live in the store server's memory and are lost when it restarts.
 - A run is recorded in the visitor's browser and stays there unless they save or share it.
 - The store's page is public, so a shared run, the visitor's messages included, is public too.
